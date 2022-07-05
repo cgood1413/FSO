@@ -3,6 +3,8 @@ import contacts from "./services/contacts";
 import Filter from "./Filter";
 import ContactForm from "./ContactForm";
 import Contacts from "./Contacts";
+import Notification from "./Notification";
+
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -10,6 +12,7 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [notifcation, setNotification] = useState(null);
 
   useEffect(() => {
     contacts.getAll().then(({ data }) => {
@@ -20,26 +23,43 @@ const App = () => {
   const addContact = (event) => {
     event.preventDefault();
     const foundPerson = persons.find((person) => {
-      let regex = new RegExp(newName, 'i');
+      let regex = new RegExp(newName, "i");
       return regex.test(person.name);
     });
-    if (foundPerson && window.confirm(`${foundPerson.name} already exists in your contacts. Would you like to update their number?`)) {
-      const updatedContact = {...foundPerson, number: newNumber};
-      contacts.update(foundPerson.id, updatedContact).then(({data}) => {
-        setPersons(persons.map(person => person.id === foundPerson.id ? data : person));
-      })
+    if (
+      foundPerson &&
+      window.confirm(
+        `${foundPerson.name} already exists in your contacts. Would you like to update their number?`
+      )
+    ) {
+      const updatedContact = { ...foundPerson, number: newNumber };
+      contacts.update(foundPerson.id, updatedContact).then(({ data }) => {
+        setPersons(
+          persons.map((person) =>
+            person.id === foundPerson.id ? data : person
+          )
+        );
+        setNotification(`Contact ${data.name} successfully updated`);
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000);
+      });
     } else if (!foundPerson) {
       const newContact = { name: newName, number: newNumber };
       contacts.create(newContact).then(({ data }) => {
         setPersons(persons.concat(data));
         setNewName("");
         setNewNumber("");
+        setNotification(`Contact ${data.name} successfully added to contacts`);
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000);
       });
     }
   };
 
   const deleteContact = (id) => {
-    if(window.confirm('Permanently delete this contact?')){
+    if (window.confirm("Permanently delete this contact?")) {
       contacts.remove(id).then((response) => {
         setPersons(persons.filter((person) => person.id !== id));
       });
@@ -66,6 +86,7 @@ const App = () => {
 
   return (
     <div>
+      <Notification message={notifcation} />
       <h2>Phonebook</h2>
 
       <h3>Filter Contacts</h3>
