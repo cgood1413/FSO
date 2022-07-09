@@ -3,7 +3,7 @@ const Notification = ({message}) => {
         width: '50%',
         height: 25,
         fontSize: 16,
-        backgroundColor: 'green'
+        backgroundColor: 'yellow'
     }
     if (message === null){
         return null;

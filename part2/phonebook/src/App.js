@@ -5,7 +5,6 @@ import ContactForm from "./ContactForm";
 import Contacts from "./Contacts";
 import Notification from "./Notification";
 
-
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [filteredPersons, setFilteredPersons] = useState([]);
@@ -20,10 +19,11 @@ const App = () => {
     });
   }, []);
 
+  // This can definitely be cleaned up
   const addContact = (event) => {
     event.preventDefault();
     const foundPerson = persons.find((person) => {
-      let regex = new RegExp(newName, "i");
+      let regex = new RegExp(`/^${newName}/`, "i");
       return regex.test(person.name);
     });
     if (
@@ -41,20 +41,30 @@ const App = () => {
         );
         setNotification(`Contact ${data.name} successfully updated`);
         setTimeout(() => {
-          setNotification(null)
+          setNotification(null);
         }, 5000);
       });
     } else if (!foundPerson) {
       const newContact = { name: newName, number: newNumber };
-      contacts.create(newContact).then(({ data }) => {
-        setPersons(persons.concat(data));
-        setNewName("");
-        setNewNumber("");
-        setNotification(`Contact ${data.name} successfully added to contacts`);
-        setTimeout(() => {
-          setNotification(null)
-        }, 5000);
-      });
+      contacts
+        .create(newContact)
+        .then(({ data }) => {
+          setPersons(persons.concat(data));
+          setNewName("");
+          setNewNumber("");
+          setNotification(
+            `Contact ${data.name} successfully added to contacts`
+          );
+          setTimeout(() => {
+            setNotification(null);
+          }, 5000);
+        })
+        .catch((err) => {
+          setNotification(err.response.data.error);
+          setTimeout(() => {
+            setNotification(null);
+          }, 5000);
+        });
     }
   };
 
