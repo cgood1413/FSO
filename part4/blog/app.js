@@ -2,7 +2,6 @@
 const logger = require("./utils/logger");
 const config = require("./utils/config");
 const blogsRouter = require("./controllers/blogs");
-const testRouter = require("./controllers/test");
 const middleware = require("./utils/middleware");
 const express = require("express");
 const app = express();
@@ -23,7 +22,6 @@ app.use(express.json());
 app.use(middleware.requestLogger);
 
 app.use("/api/blogs", blogsRouter);
-app.use("/api/test", testRouter);
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errHandler);
